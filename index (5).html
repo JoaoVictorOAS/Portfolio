@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>João Victor — Desenvolvedor Full Stack</title>
+<meta name="description" content="Desenvolvedor full stack em Rondonópolis, MT. Sistemas em produção para saúde, logística e agro. PHP, React, TypeScript." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
+<style>
+:root{
+  --bg:#07090B; --fg:#E4E7E2;
+  --dim:rgba(228,231,226,.60); --faint:rgba(228,231,226,.30); --line:rgba(228,231,226,.13);
+  --accent:#F0A32C;
+  --gut:clamp(20px,4vw,56px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit} b,strong{font-weight:600}
+body.booting{overflow:hidden;height:100vh}
+
+@media (pointer:fine){ body,a,button{cursor:none} }
+
+/* ── camadas ── */
+#ascii{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+.veil{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+   linear-gradient(101deg,rgba(7,9,11,.96) 0%,rgba(7,9,11,.84) 30%,rgba(7,9,11,.10) 58%,rgba(7,9,11,.42) 100%),
+   linear-gradient(0deg,rgba(7,9,11,.90) 0%,rgba(7,9,11,0) 22%,rgba(7,9,11,0) 78%,rgba(7,9,11,.86) 100%)}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.26;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.55) 0,rgba(0,0,0,.55) 1px,transparent 1px,transparent 3px)}
+#cursor{position:fixed;inset:0;z-index:9;pointer-events:none;display:none}
+#cursor b{position:absolute;top:0;left:0;font-family:"IBM Plex Mono",monospace;font-weight:400;
+  font-size:15px;line-height:1;color:var(--accent);will-change:transform}
+
+/* ── boot ── */
+#boot{position:fixed;inset:0;z-index:8;display:flex;align-items:flex-end;justify-content:flex-start;
+  padding:0 0 40px var(--gut);pointer-events:none;transition:opacity .35s ease}
+#boot.gone{opacity:0}
+#boot p{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin:0;white-space:pre-wrap;max-width:62ch;line-height:2.1}
+#boot small{display:block;color:var(--faint);margin-top:18px;letter-spacing:.16em}
+
+.shell{position:relative;z-index:2;opacity:0;transition:opacity .5s ease}
+body.booted .shell{opacity:1}
+.wrap{max-width:1240px;margin:0 auto;padding:0 var(--gut)}
+
+/* ── superfície: vidro fosco + trama de pontos + varredura ── */
+.panel{
+  background-color:rgba(7,9,11,.82);
+  background-image:
+    radial-gradient(rgba(228,231,226,.06) .9px, transparent .9px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.34) 0 1px, rgba(0,0,0,0) 1px 3px);
+  background-size:5px 5px, 100% 3px;
+  background-position:0 0, 0 0;
+  -webkit-backdrop-filter:blur(6px) saturate(.8);
+  backdrop-filter:blur(6px) saturate(.8);
+  box-shadow:0 0 0 1px rgba(228,231,226,.05), 0 24px 60px -30px rgba(0,0,0,.9);
+}
+h1,.head h2,.contact h2,.role,.lede{text-shadow:0 2px 22px rgba(7,9,11,.85)}
+
+/* ── trilho lateral ── */
+.rail{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:5;display:none;
+  flex-direction:column;gap:11px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
+  letter-spacing:.18em;text-transform:uppercase}
+body.booted .rail{display:flex}
+.rail a{color:rgba(228,231,226,.22);text-decoration:none;display:flex;align-items:center;gap:8px;
+  transition:color .3s;text-shadow:0 1px 10px rgba(7,9,11,.95)}
+.rail a::before{content:"";width:14px;height:1px;background:currentColor;transition:width .3s}
+.rail a.on{color:var(--accent)}
+.rail a.on::before{width:30px}
+.rail .pct{color:var(--faint);margin-top:10px;letter-spacing:.1em}
+@media(max-width:1180px){.rail{display:none!important}}
+
+/* ── barra ── */
+.bar{position:fixed;top:0;left:0;right:0;z-index:6;height:44px;background:rgba(7,9,11,.86);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;
+  opacity:0;transition:opacity .4s ease .1s}
+body.booted .bar{opacity:1}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;width:100%}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.tag b{color:var(--accent);font-weight:500}
+.right{display:flex;align-items:center}
+.links{display:flex}
+.links a,.snd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);text-decoration:none;padding:0 14px;border-left:1px solid var(--line);
+  transition:color .18s,background .18s;line-height:44px;background:none;border-top:0;border-bottom:0;border-right:0}
+.links a:hover,.links a:focus-visible,.snd:hover,.snd:focus-visible{color:var(--bg);background:var(--accent)}
+.snd{border-right:1px solid var(--line);font-family:"IBM Plex Mono",monospace}
+.snd.on{color:var(--accent)}
+@media(max-width:940px){.links{display:none}}
+
+/* ── hero ── */
+.hero{min-height:100svh;display:flex;align-items:center;padding:120px 0 70px}
+.coords{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 26px;display:flex;gap:20px;flex-wrap:wrap}
+.coords span{opacity:.6;color:var(--fg)}
+h1{font-family:"Martian Mono",monospace;font-weight:800;font-size:clamp(30px,7.4vw,104px);
+  line-height:.98;letter-spacing:-.055em;margin:0;text-transform:uppercase}
+h1 i{font-style:normal;color:var(--accent)}
+.role{font-family:"Martian Mono",monospace;font-weight:400;font-size:clamp(10px,1.35vw,15px);
+  letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin:22px 0 0}
+.lede{font-size:clamp(16px,1.9vw,20px);line-height:1.5;max-width:46ch;margin:26px 0 0;color:var(--dim)}
+.lede b{color:var(--fg)}
+.caret{display:inline-block;width:.55em;height:1em;background:var(--accent);vertical-align:-.13em;
+  margin-left:.25em;animation:blink 1.05s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.readout{margin-top:52px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(3,1fr)}
+.readout{background-color:rgba(7,9,11,.82);
+  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-size:5px 5px,100% 3px;
+  -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
+.readout div{padding:16px 20px 18px;border-right:1px solid var(--line)}
+.readout div:last-child{border-right:0}
+.readout dt{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 8px}
+.readout dd{margin:0;font-family:"Martian Mono",monospace;font-weight:600;font-size:clamp(13px,1.6vw,19px);letter-spacing:-.03em}
+@media(max-width:760px){.readout{grid-template-columns:1fr}
+  .readout div{border-right:0;border-bottom:1px solid var(--line)}
+  .readout div:last-child{border-bottom:0}}
+
+/* ── seções ── */
+section,.hero{position:relative}
+section::before,.hero::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(rgba(228,231,226,.05) .9px, transparent .9px),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.26) 0 1px, rgba(0,0,0,0) 1px 3px),
+    linear-gradient(101deg, rgba(7,9,11,.90) 0%, rgba(7,9,11,.76) 44%, rgba(7,9,11,.14) 76%, rgba(7,9,11,0) 100%);
+  background-size:5px 5px, 100% 3px, 100% 100%;
+  -webkit-backdrop-filter:blur(3px) saturate(.9);
+  backdrop-filter:blur(3px) saturate(.9);
+}
+section > .wrap,.hero > .wrap{position:relative;z-index:1}
+section{padding:110px 0}
+.head{display:flex;align-items:center;gap:14px;margin-bottom:38px;
+  padding:10px clamp(12px,1.6vw,18px);
+  background-color:rgba(7,9,11,.86);
+  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.head h2{font-family:"Martian Mono",monospace;font-weight:800;font-size:clamp(18px,3vw,34px);
+  letter-spacing:-.05em;text-transform:uppercase;margin:0;white-space:nowrap}
+.head .rule{flex:1;height:1px;background:var(--line)}
+.head .note{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--faint);white-space:nowrap}
+.head .blk{font-family:monospace;color:var(--accent);font-size:16px;line-height:1;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+.now{border-top:1px solid var(--line);padding:0 clamp(14px,2vw,26px)}
+.job{display:grid;grid-template-columns:230px 1fr 170px;gap:28px;padding:26px 0;
+  border-bottom:1px solid var(--line);transition:background .25s}
+.job:hover{background:rgba(228,231,226,.03)}
+.job .co{font-family:"Martian Mono",monospace;font-weight:600;font-size:14px;letter-spacing:-.03em;text-transform:uppercase}
+.job .co em{display:block;font-style:normal;font-family:"IBM Plex Mono",monospace;font-weight:400;
+  font-size:10.5px;letter-spacing:.13em;color:var(--accent);margin-top:8px;text-transform:uppercase}
+.job ul{margin:0;padding:0;list-style:none}
+.job li{position:relative;padding-left:22px;margin-bottom:8px;color:var(--dim);font-size:14.5px}
+.job li:last-child{margin-bottom:0}
+.job li::before{content:"▸";position:absolute;left:0;top:0;color:var(--accent);font-size:11px}
+.job .when{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faint);text-align:right}
+@media(max-width:880px){.job{grid-template-columns:1fr;gap:14px}.job .when{text-align:left}}
+
+.projs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;perspective:1100px}
+.proj{padding:26px 24px 24px;border:1px solid var(--line);text-decoration:none;
+  display:flex;flex-direction:column;transform-style:preserve-3d;
+  background-color:rgba(7,9,11,.93);
+  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-size:5px 5px,100% 3px;
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.95), inset 0 0 60px rgba(0,0,0,.5);
+  transition:background-color .25s,color .25s,border-color .25s,transform .12s ease-out;will-change:transform}
+.proj:hover,.proj:focus-visible{background-color:var(--accent);background-image:none;
+  color:var(--bg);border-color:var(--accent)}
+.proj .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 14px;transform:translateZ(18px)}
+.proj:hover .k{color:rgba(7,9,11,.55)}
+.proj h3{font-family:"Martian Mono",monospace;font-weight:600;font-size:15px;letter-spacing:-.04em;
+  text-transform:uppercase;margin:0 0 12px;line-height:1.25;transform:translateZ(36px)}
+.proj p{margin:0 0 20px;font-size:14px;color:var(--dim);flex:1;transform:translateZ(12px)}
+.proj:hover p{color:rgba(7,9,11,.78)}
+.proj .u{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--accent);word-break:break-all;transform:translateZ(24px)}
+.proj:hover .u{color:var(--bg)}
+@media(max-width:880px){.projs{grid-template-columns:1fr;perspective:none}.proj{transform:none!important}}
+
+.repos{display:flex;flex-wrap:wrap;margin-top:22px;border:1px solid var(--line);border-right:0;border-bottom:0;
+  background-color:rgba(7,9,11,.82);
+  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-size:5px 5px,100% 3px;
+  -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
+.repo{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--dim);text-decoration:none;padding:10px 15px;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);flex:1 1 auto;white-space:nowrap;
+  transition:background .2s,color .2s}
+.repo:hover{background:var(--accent);color:var(--bg)}
+.repo s{text-decoration:none;color:var(--faint)}
+.repo:hover s{color:rgba(7,9,11,.6)}
+
+.tape{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:11px 0;white-space:nowrap;
+  background-color:rgba(7,9,11,.86);
+  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.tape .run{display:inline-block;animation:slide 34s linear infinite;font-family:"IBM Plex Mono",monospace;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.tape .run em{font-style:normal;color:var(--accent)}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.stack{border-top:1px solid var(--line);padding:0 clamp(14px,2vw,26px);
+  background-color:rgba(7,9,11,.82);
+  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-size:5px 5px,100% 3px;
+  -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
+.srow{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:17px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.srow dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.srow dd{margin:0;font-family:"Martian Mono",monospace;font-size:clamp(11px,1.35vw,14px);letter-spacing:-.02em;line-height:1.9}
+@media(max-width:760px){.srow{grid-template-columns:1fr;gap:8px}}
+
+.two{display:grid;grid-template-columns:1.1fr .9fr;gap:60px}
+.two ul,.certs{background-color:rgba(7,9,11,.82);
+  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-size:5px 5px,100% 3px;
+  -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
+.two ul{list-style:none;margin:0;padding:0 clamp(14px,2vw,22px);border-top:1px solid var(--line)}
+.two li{display:grid;grid-template-columns:64px 1fr;gap:16px;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.two li b{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--accent);font-weight:400}
+.two li span{font-size:14.5px;color:var(--dim)}
+.certs{display:flex;flex-wrap:wrap;align-content:flex-start;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.certs span{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim);padding:9px 13px;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);flex:1 1 auto;white-space:nowrap}
+@media(max-width:880px){.two{grid-template-columns:1fr;gap:40px}}
+
+.contact{padding-bottom:130px}
+.contact h2{font-family:"Martian Mono",monospace;font-weight:800;font-size:clamp(24px,6vw,74px);
+  letter-spacing:-.06em;text-transform:uppercase;line-height:1;margin:0 0 36px}
+.contact h2 i{font-style:normal;color:var(--accent)}
+.clist{border-top:1px solid var(--line);max-width:820px;padding:0 clamp(14px,2vw,26px);
+  background-color:rgba(7,9,11,.82);
+  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-size:5px 5px,100% 3px;
+  -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
+.clist a{display:grid;grid-template-columns:130px 1fr 22px;gap:16px;align-items:center;padding:17px 0;
+  border-bottom:1px solid var(--line);text-decoration:none;transition:color .2s,padding-left .25s}
+.clist a:hover,.clist a:focus-visible{color:var(--accent);padding-left:12px}
+.clist a b{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);font-weight:400}
+.clist a span{font-family:"IBM Plex Mono",monospace;font-size:13.5px;word-break:break-all}
+.clist a u{text-decoration:none;text-align:right;font-family:monospace;opacity:.5}
+footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:22px 0 0;
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
+
+.rv{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.rv.in{opacity:1;transform:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none;transition:none}
+  .scan,.caret,.head .blk,.tape .run{animation:none}
+  #cursor,#boot{display:none!important}
+  body.booting{overflow:auto;height:auto}
+  .shell{opacity:1} .bar{opacity:1}
+  @media(pointer:fine){body,a,button{cursor:auto}}
+}
+</style>
+</head>
+<body class="booting">
+
+<canvas id="ascii" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+<div id="cursor" aria-hidden="true"></div>
+
+<div id="boot" aria-hidden="true"><p id="bootlog"></p></div>
+
+<nav class="rail" aria-hidden="true">
+  <a href="#topo" data-rail="topo" class="on">início</a>
+  <a href="#agora" data-rail="agora">agora</a>
+  <a href="#trajetoria" data-rail="trajetoria">trajetória</a>
+  <a href="#projetos" data-rail="projetos">projetos</a>
+  <a href="#stack" data-rail="stack">stack</a>
+  <a href="#ensino" data-rail="ensino">ensino</a>
+  <a href="#contato" data-rail="contato">contato</a>
+  <span class="pct" id="pct">000%</span>
+</nav>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="tag"><b>JV</b> · full stack · rondonópolis mt</div>
+    <div class="right">
+      <nav class="links">
+        <a href="#agora" data-scramble>agora</a>
+        <a href="#trajetoria" data-scramble>trajetória</a>
+        <a href="#projetos" data-scramble>projetos</a>
+        <a href="#stack" data-scramble>stack</a>
+        <a href="#contato" data-scramble>contato</a>
+      </nav>
+      <button class="snd on" id="snd" type="button" aria-pressed="true">som ●</button>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+
+<header class="hero" id="topo" data-phase="0" data-shape="0">
+  <div class="wrap">
+    <p class="coords">−16.4708 / −54.6356 <span>rondonópolis · mt · br</span></p>
+    <h1><span data-boot>João</span><br><i data-boot>Victor</i></h1>
+    <p class="role">desenvolvedor full stack — php · react · typescript</p>
+    <p class="lede">Escrevo software que <b>entra em produção</b> e fica lá: gestão clínica, sistemas logísticos e operação de agro.<span class="caret"></span></p>
+    <dl class="readout">
+      <div><dt>plataforma mosaico</dt><dd><span data-count="100">0</span> mil req/dia</dd></div>
+      <div><dt>frentes simultâneas</dt><dd>três</dd></div>
+      <div><dt>eng. de software · ufr</dt><dd>2024 — 2028</dd></div>
+    </dl>
+  </div>
+</header>
+
+<section id="agora" data-phase="0" data-shape="1">
+  <div class="wrap">
+    <div class="head rv"><span class="blk">▓</span><h2 data-scramble-in>Agora</h2><span class="rule"></span><span class="note">três contratos em paralelo</span></div>
+    <div class="now rv">
+      <article class="job">
+        <div class="co">Cathi Soluções<em>front-end react / typescript</em></div>
+        <ul>
+          <li>Plataforma de gestão clínica <b>Mosaico</b> em produção, +100 mil requisições/dia.</li>
+          <li>Arquitetura de componentes reutilizáveis integrada ao Supabase (BaaS).</li>
+          <li>Orquestração multi-agente de IA para automação de fluxos clínicos.</li>
+          <li>Servidores MCP próprios em VPS, ligando Claude Code a ferramentas do sistema.</li>
+        </ul>
+        <div class="when">nov 2025 —<br>atual · remoto</div>
+      </article>
+      <article class="job">
+        <div class="co">SOGG Software<em>desenvolvedor php</em></div>
+        <ul>
+          <li>Sistemas web empresariais em PHP/MySQL com POO.</li>
+          <li>Integração com APIs de transporte da ANTT (CloudDFe) e emissão de CIOT.</li>
+          <li>Consumo de OpenAI e Gemini para automação dentro do produto.</li>
+          <li>APIs próprias expondo serviços internos entre módulos.</li>
+        </ul>
+        <div class="when">nov 2025 —<br>atual</div>
+      </article>
+      <article class="job">
+        <div class="co">Void Software<em>fundador · infraestrutura web</em></div>
+        <ul>
+          <li>Terceirização de infraestrutura web para agências de marketing.</li>
+          <li>Landing pages, SEO e hospedagem sob contrato recorrente.</li>
+        </ul>
+        <div class="when">fev 2026 —<br>atual</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="trajetoria" data-phase="1" data-shape="2">
+  <div class="wrap">
+    <div class="head rv"><span class="blk">▓</span><h2 data-scramble-in>Trajetória</h2><span class="rule"></span><span class="note">do suporte ao produto</span></div>
+    <div class="now rv">
+      <article class="job">
+        <div class="co">Hisower<em>analista de suporte · estágio</em></div>
+        <ul><li>Suporte nível 2 em ERP para empresas sementeiras — produção, beneficiamento, rastreabilidade de lotes e armazenagem.</li>
+        <li>Consultas PL/SQL complexas para corrigir inconsistências em WMS, TMS e CRM.</li></ul>
+        <div class="when">ago 2024 —<br>mar 2025</div>
+      </article>
+      <article class="job">
+        <div class="co">Revelo<em>revisor técnico de ia</em></div>
+        <ul><li>Validação de outputs de LLMs: alucinações e falhas conceituais em código.</li>
+        <li>Refinamento via RLHF usando Clean Code e SOLID como critério de avaliação.</li></ul>
+        <div class="when">dez 2025 —<br>mar 2026</div>
+      </article>
+      <article class="job">
+        <div class="co">Formação<em>ufr · ifmt</em></div>
+        <ul><li>Engenharia de Software — Universidade Federal de Rondonópolis (2024 — 2028).</li>
+        <li>Técnico em Informática — IFMT (2020 — 2023). Inglês B1, mandarim A1.</li></ul>
+        <div class="when">2020 —<br>2028</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="projetos" data-phase="1" data-shape="3">
+  <div class="wrap">
+    <div class="head rv"><span class="blk">▓</span><h2 data-scramble-in>Projetos</h2><span class="rule"></span><span class="note">com usuário do outro lado</span></div>
+    <div class="projs rv">
+      <a class="proj" data-tilt href="https://acheinaufr.vercel.app" target="_blank" rel="noopener">
+        <p class="k">open source · 2026</p><h3 data-scramble>Acheinaufr</h3>
+        <p>Achados e perdidos para o campus da UFR. Liderança técnica full stack: APIs REST, modelagem relacional e front-end responsivo.</p>
+        <span class="u">acheinaufr.vercel.app</span>
+      </a>
+      <a class="proj" data-tilt href="https://projeto-saude-ufr.vercel.app" target="_blank" rel="noopener">
+        <p class="k">saúde pública · 2025</p><h3 data-scramble>Gestacional</h3>
+        <p>Monitoramento pré-natal para postos universitários e UBS: cadastro, agendamento e painéis clínicos. Em equipe.</p>
+        <span class="u">projeto-saude-ufr.vercel.app</span>
+      </a>
+      <a class="proj" data-tilt href="https://voidsoftware.org" target="_blank" rel="noopener">
+        <p class="k">negócio próprio · 2026</p><h3 data-scramble>Void Software</h3>
+        <p>Infraestrutura web terceirizada para agências: landing pages, SEO e hospedagem. Parte técnica sob minha responsabilidade.</p>
+        <span class="u">voidsoftware.org</span>
+      </a>
+    </div>
+    <div class="repos rv">
+      <a class="repo" href="https://github.com/JoaoVictorOAS/saude-2" target="_blank" rel="noopener">saude-2 <s>/ typescript</s></a>
+      <a class="repo" href="https://github.com/JoaoVictorOAS/Kubernets-lab" target="_blank" rel="noopener">kubernets-lab <s>/ shell</s></a>
+      <a class="repo" href="https://github.com/JoaoVictorOAS/AgilLazarus" target="_blank" rel="noopener">agillazarus <s>/ pascal</s></a>
+      <a class="repo" href="https://github.com/JoaoVictorOAS/Hermes_vps" target="_blank" rel="noopener">hermes_vps <s>/ javascript</s></a>
+      <a class="repo" href="https://github.com/JoaoVictorOAS/Job-automation" target="_blank" rel="noopener">job-automation <s>/ javascript</s></a>
+      <a class="repo" href="https://github.com/JoaoVictorOAS/Integracoes_APIs" target="_blank" rel="noopener">integracoes_apis <s>/ javascript</s></a>
+      <a class="repo" href="https://github.com/JoaoVictorOAS" target="_blank" rel="noopener">ver os 25 <s>/ github</s></a>
+    </div>
+  </div>
+</section>
+
+<div class="tape" aria-hidden="true"><div class="run">
+  php <em>·</em> laravel <em>·</em> adianti <em>·</em> react <em>·</em> typescript <em>·</em> node <em>·</em> postgresql <em>·</em> pl/sql <em>·</em> docker <em>·</em> ci/cd <em>·</em> antt/ciot <em>·</em> supabase <em>·</em> mcp <em>·</em> tensorflow <em>·</em> pytorch <em>·</em>&nbsp;
+  php <em>·</em> laravel <em>·</em> adianti <em>·</em> react <em>·</em> typescript <em>·</em> node <em>·</em> postgresql <em>·</em> pl/sql <em>·</em> docker <em>·</em> ci/cd <em>·</em> antt/ciot <em>·</em> supabase <em>·</em> mcp <em>·</em> tensorflow <em>·</em> pytorch <em>·</em>&nbsp;
+</div></div>
+
+<section id="stack" data-phase="2" data-shape="4">
+  <div class="wrap">
+    <div class="head rv"><span class="blk">▓</span><h2 data-scramble-in>Stack</h2><span class="rule"></span><span class="note">o que uso em produção</span></div>
+    <dl class="stack rv">
+      <div class="srow"><dt>back-end</dt><dd>PHP · Laravel · Adianti · Node.js · Java</dd></div>
+      <div class="srow"><dt>front-end</dt><dd>React · TypeScript · JavaScript · SPA</dd></div>
+      <div class="srow"><dt>dados</dt><dd>PostgreSQL · MySQL · PL/SQL</dd></div>
+      <div class="srow"><dt>infra</dt><dd>Git · Docker · CI/CD · Google Cloud</dd></div>
+      <div class="srow"><dt>qualidade</dt><dd>JUnit · Clean Code · SOLID</dd></div>
+      <div class="srow"><dt>ia / ml</dt><dd>Python · TensorFlow · PyTorch · fine-tuning de LLMs</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section id="ensino" data-phase="2" data-shape="1">
+  <div class="wrap">
+    <div class="head rv"><span class="blk">▓</span><h2 data-scramble-in>Ensino</h2><span class="rule"></span><span class="note">e certificações</span></div>
+    <div class="two rv">
+      <ul>
+        <li><b>2025</b><span>Instrutor de IA &amp; Deep Learning — redes neurais com Python, TensorFlow e PyTorch</span></li>
+        <li><b>2025</b><span>Instrutor de Testes de Software — testes unitários com JUnit e qualidade de código Java</span></li>
+        <li><b>2023</b><span>Instrutor de Lógica de Programação — algoritmos e estruturas de dados</span></li>
+      </ul>
+      <div class="certs">
+        <span>git e github / 2025</span><span>machine learning / 2026</span><span>pandas + numpy / 2026</span>
+        <span>banco de dados e sql / 2026</span><span>cibersegurança / 2026</span><span>ia, otimização e iot / 2026</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contato" class="contact" data-phase="0" data-shape="0">
+  <div class="wrap">
+    <h2 class="rv">Vamos <i>conversar</i></h2>
+    <div class="clist rv">
+      <a href="mailto:dev.joaovictor.oas@gmail.com"><b>e-mail</b><span>dev.joaovictor.oas@gmail.com</span><u>→</u></a>
+      <a href="tel:+5566999001680"><b>telefone</b><span>(66) 99900-1680</span><u>→</u></a>
+      <a href="https://github.com/JoaoVictorOAS" target="_blank" rel="noopener"><b>github</b><span>@JoaoVictorOAS</span><u>→</u></a>
+      <a href="https://www.linkedin.com/in/joao-victor-dos-santos-518289256/" target="_blank" rel="noopener"><b>linkedin</b><span>joao-victor-dos-santos</span><u>→</u></a>
+    </div>
+    <footer>
+      <span>disponível para remoto</span>
+      <span>3.4k pontos · z-buffer · rasterizado em ascii · sem dependências</span>
+    </footer>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine   = matchMedia('(pointer:fine)').matches;
+const body   = document.body;
+
+/* ═════════ ÁUDIO ═════════ */
+let AC = null, sndOn = true;
+const sndBtn = document.getElementById('snd');
+function blip(freq, dur, type, gain){
+  if(!sndOn || !AC) return;
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type || 'square'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, AC.currentTime);
+  g.gain.linearRampToValueAtTime(gain || .025, AC.currentTime + .008);
+  g.gain.exponentialRampToValueAtTime(.0001, AC.currentTime + (dur||.09));
+  o.connect(g); g.connect(AC.destination);
+  o.start(); o.stop(AC.currentTime + (dur||.09) + .02);
+}
+/* navegadores bloqueiam áudio antes de qualquer interação:
+   o som já nasce ligado, mas só toca a partir do primeiro gesto */
+function unlockAudio(){
+  if(AC) return;
+  try{
+    AC = new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state === 'suspended') AC.resume();
+    if(sndOn) blip(880,.06,'square',.02);
+  }catch(e){ AC = null; }
+}
+['pointerdown','keydown','wheel','touchstart'].forEach(ev=>
+  addEventListener(ev, unlockAudio, {once:true, passive:true}));
+
+sndBtn.addEventListener('click', ()=>{
+  unlockAudio();
+  if(AC && AC.state === 'suspended') AC.resume();
+  sndOn = !sndOn;
+  sndBtn.textContent = 'som ' + (sndOn ? '●' : '○');
+  sndBtn.classList.toggle('on', sndOn);
+  sndBtn.setAttribute('aria-pressed', String(sndOn));
+  if(sndOn) blip(880,.07,'square');
+});
+
+/* ═════════ SCRAMBLE ═════════ */
+const GLYPH = "▓▒░#@%*+=-:.<>/\\|01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+function scramble(el, speed){
+  if(reduce || el.__busy) return;
+  const final = el.dataset.txt || (el.dataset.txt = el.textContent);
+  el.__busy = true;
+  const n = final.length; let frame = 0;
+  (function step(){
+    let out = '';
+    for(let i=0;i<n;i++){
+      out += (frame > i*1.6 + 4) ? final[i]
+           : (final[i]===' ' ? ' ' : GLYPH[(Math.random()*GLYPH.length)|0]);
+    }
+    el.textContent = out; frame++;
+    if(frame < n*1.6 + 8) setTimeout(step, speed||20);
+    else { el.textContent = final; el.__busy = false; }
+  })();
+}
+document.querySelectorAll('[data-scramble]').forEach(el=>{
+  el.addEventListener('pointerenter', ()=>{ scramble(el,18); blip(1400,.03,'square',.012); });
+});
+const sio = new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ scramble(e.target,20); sio.unobserve(e.target); }
+}),{threshold:.6});
+document.querySelectorAll('[data-scramble-in]').forEach(el=>sio.observe(el));
+
+/* ═════════ REVEAL / CONTADOR ═════════ */
+const io = new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+const cio = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  const el = e.target, to = +el.dataset.count; let v = 0;
+  (function tick(){ v += Math.max(1,(to-v)*.12);
+    if(v>=to){ el.textContent='+'+to; return; }
+    el.textContent='+'+Math.floor(v); requestAnimationFrame(tick); })();
+  cio.unobserve(el);
+}),{threshold:.6});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+/* ═════════ PALETA / FORMA POR SEÇÃO ═════════ */
+const PAL = [
+  { css:'#F0A32C', stops:['#0B0D0E','#3A2A0C','#B0761E','#F0A32C','#FFD98A'] },
+  { css:'#FF5A36', stops:['#0D0A0A','#3E1409','#A8331A','#FF5A36','#FFB199'] },
+  { css:'#6FE0BC', stops:['#080D0C','#0E2E27','#2E8C74','#6FE0BC','#C4F5E7'] }
+];
+let tPhase = 0, phase = 0, shapeTo = 0, glitch = 0, burst = 0;
+const railLinks = [...document.querySelectorAll('.rail a')];
+const pio = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting || e.intersectionRatio <= .4) return;
+  const ph = +e.target.dataset.phase, sh = +e.target.dataset.shape;
+  if(ph !== tPhase){ tPhase = ph; document.documentElement.style.setProperty('--accent', PAL[ph].css); }
+  if(sh !== shapeTo){ shapeTo = sh; burst = 1; glitch = 1; blip(180 + sh*90, .16, 'sawtooth', .03); }
+  const id = e.target.id;
+  railLinks.forEach(a=>a.classList.toggle('on', a.dataset.rail === id));
+}),{threshold:[.4,.7]});
+document.querySelectorAll('[data-phase]').forEach(s=>pio.observe(s));
+
+const pct = document.getElementById('pct');
+addEventListener('scroll', ()=>{
+  const m = Math.max(1, document.body.scrollHeight - innerHeight);
+  pct.textContent = String(Math.round(scrollY/m*100)).padStart(3,'0') + '%';
+}, {passive:true});
+
+/* ═════════ TILT 3D ═════════ */
+if(fine && !reduce) document.querySelectorAll('[data-tilt]').forEach(card=>{
+  card.addEventListener('pointermove', e=>{
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX-r.left)/r.width - .5, py = (e.clientY-r.top)/r.height - .5;
+    card.style.transform = `rotateY(${px*14}deg) rotateX(${-py*14}deg) translateZ(18px) scale(1.02)`;
+  });
+  card.addEventListener('pointerleave', ()=>{ card.style.transform=''; });
+});
+
+/* ═════════ CURSOR ASCII ═════════ */
+const CUR = "░▒▓█*+#%@=-<>/\\|";
+let tcx = innerWidth/2, tcy = innerHeight/2, dots = [], cursor = null, cf = 0;
+if(fine && !reduce){
+  cursor = document.getElementById('cursor');
+  cursor.style.display = 'block';
+  for(let i=0;i<16;i++){
+    const b = document.createElement('b');
+    b.textContent = CUR[(Math.random()*CUR.length)|0];
+    b.style.opacity = (1 - i/16)*.92;
+    b.style.fontSize = (18 - i*.78)+'px';
+    cursor.appendChild(b);
+    dots.push({el:b, x:tcx, y:tcy});
+  }
+  addEventListener('pointermove', e=>{ tcx=e.clientX; tcy=e.clientY; }, {passive:true});
+  addEventListener('pointerdown', ()=>{ burst = Math.max(burst,.55); glitch = Math.max(glitch,.5); blip(660,.05); });
+  (function loop(){
+    requestAnimationFrame(loop); cf++;
+    let px = tcx, py = tcy;
+    for(let i=0;i<dots.length;i++){
+      const d = dots[i];
+      d.x += (px-d.x)*(.44 - i*.021); d.y += (py-d.y)*(.44 - i*.021);
+      d.el.style.transform = `translate3d(${d.x}px,${d.y}px,0) translate(-50%,-50%)`;
+      if((cf + i*3) % 4 === 0) d.el.textContent = CUR[(Math.random()*CUR.length)|0];
+      px = d.x; py = d.y;
+    }
+  })();
+}
+
+/* ═════════ RENDERER ═════════ */
+const cv = document.getElementById('ascii');
+const ctx = cv.getContext('2d', {alpha:false});
+if(!ctx) return;
+
+const RAMP_DOT = " .·:-=+*#%@", RAMP_BLOCK = "  ░░▒▒▓▓██@", LEVELS = RAMP_DOT.length;
+
+/* ruído */
+const NS = 128, NM = NS-1, grid = new Float32Array(NS*NS);
+for(let i=0;i<NS*NS;i++) grid[i] = Math.random();
+function nz(x,y){
+  x -= Math.floor(x/NS)*NS; y -= Math.floor(y/NS)*NS;
+  const x0=Math.floor(x), y0=Math.floor(y), fx=x-x0, fy=y-y0;
+  const ux=fx*fx*(3-2*fx), uy=fy*fy*(3-2*fy);
+  const x1=(x0+1)&NM, y1=(y0+1)&NM, xa=x0&NM, ya=y0&NM;
+  const a=grid[ya*NS+xa], b=grid[ya*NS+x1], c=grid[y1*NS+xa], d=grid[y1*NS+x1];
+  const t=a+(b-a)*ux; return t + ((c+(d-c)*ux)-t)*uy;
+}
+function fbm(x,y){ let v=0,A=.5,fx=x,fy=y;
+  for(let o=0;o<3;o++){ v+=A*nz(fx,fy); fx=fx*2.04+13.1; fy=fy*2.04+7.3; A*=.5; } return v*1.42; }
+
+/* cores */
+function hex(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+const colors = new Array(LEVELS); let lastBuilt = -9;
+function buildColors(ph){
+  const i0=Math.min(2,Math.floor(ph)), i1=Math.min(2,i0+1), m=ph-i0;
+  const A=PAL[i0].stops.map(hex), B=PAL[i1].stops.map(hex);
+  for(let l=0;l<LEVELS;l++){
+    const t=l/(LEVELS-1)*(A.length-1);
+    const s0=Math.min(A.length-1,Math.floor(t)), s1=Math.min(A.length-1,s0+1), f=t-s0, o=[0,0,0];
+    for(let c=0;c<3;c++){
+      const a=A[s0][c]+(A[s1][c]-A[s0][c])*f, b=B[s0][c]+(B[s1][c]-B[s0][c])*f;
+      o[c]=Math.round(a+(b-a)*m);
+    }
+    colors[l]='rgb('+o[0]+','+o[1]+','+o[2]+')';
+  }
+  lastBuilt=ph;
+}
+buildColors(0);
+
+/* ═══ nuvem de pontos: 5 sólidos ═══ */
+const P = 3400;
+const SHAPES = 5;
+const S = [];                       // S[k] = Float32Array(P*6): x,y,z,nx,ny,nz
+const dir = new Float32Array(P*3);  // direção de explosão
+const GA = Math.PI*(3-Math.sqrt(5));
+
+function mk(fn){ const a = new Float32Array(P*6);
+  for(let i=0;i<P;i++) fn(i, a, i*6); return a; }
+
+// 0 · toro
+S[0] = mk((i,a,o)=>{
+  const u = (i*GA)%6.2832, v = (i/P)*6.2832*7 % 6.2832;
+  const R=2.05, r=.95, cu=Math.cos(u), su=Math.sin(u), cv=Math.cos(v), sv=Math.sin(v);
+  a[o]= (R+r*cv)*cu; a[o+1]= r*sv; a[o+2]= (R+r*cv)*su;
+  a[o+3]= cv*cu; a[o+4]= sv; a[o+5]= cv*su;
+});
+// 1 · esfera (fibonacci)
+S[1] = mk((i,a,o)=>{
+  const y = 1 - (i/(P-1))*2, r = Math.sqrt(Math.max(0,1-y*y)), th = GA*i;
+  const x = Math.cos(th)*r, z = Math.sin(th)*r, R = 2.5;
+  a[o]=x*R; a[o+1]=y*R; a[o+2]=z*R; a[o+3]=x; a[o+4]=y; a[o+5]=z;
+});
+// 2 · cubo (superfície)
+S[2] = mk((i,a,o)=>{
+  const f = i%6, t = ((i*GA)%1), s = ((i*0.618034)%1);
+  const u = (t*2-1)*2.0, v = (s*2-1)*2.0, E = 2.0;
+  let x,y,z,nx=0,ny=0,nz=0;
+  if(f===0){x=E;y=u;z=v;nx=1} else if(f===1){x=-E;y=u;z=v;nx=-1}
+  else if(f===2){x=u;y=E;z=v;ny=1} else if(f===3){x=u;y=-E;z=v;ny=-1}
+  else if(f===4){x=u;y=v;z=E;nz=1} else {x=u;y=v;z=-E;nz=-1}
+  a[o]=x;a[o+1]=y;a[o+2]=z;a[o+3]=nx;a[o+4]=ny;a[o+5]=nz;
+});
+// 3 · hélice dupla
+S[3] = mk((i,a,o)=>{
+  const strand = i%2, k = (i/P), t = k*6.2832*3.2 + strand*Math.PI;
+  const R = 1.35, H = 5.4;
+  const x = Math.cos(t)*R, z = Math.sin(t)*R, y = (k-.5)*H;
+  a[o]=x; a[o+1]=y; a[o+2]=z;
+  a[o+3]=Math.cos(t); a[o+4]=.25; a[o+5]=Math.sin(t);
+});
+// 4 · malha ondulada
+S[4] = mk((i,a,o)=>{
+  const n = Math.round(Math.sqrt(P)), gx = i%n, gz = (i/n)|0;
+  const x = (gx/(n-1)-.5)*6.2, z = (gz/(n-1)-.5)*6.2;
+  const y = Math.sin(x*1.5)*Math.cos(z*1.5)*.75;
+  a[o]=x; a[o+1]=y; a[o+2]=z;
+  const dx=-1.5*Math.cos(x*1.5)*Math.cos(z*1.5), dz=1.5*Math.sin(x*1.5)*Math.sin(z*1.5);
+  const L=Math.hypot(dx,1,dz); a[o+3]=dx/L; a[o+4]=1/L; a[o+5]=dz/L;
+});
+for(let i=0;i<P;i++){
+  const y=1-(i/(P-1))*2, r=Math.sqrt(Math.max(0,1-y*y)), th=GA*i*1.7;
+  dir[i*3]=Math.cos(th)*r; dir[i*3+1]=y; dir[i*3+2]=Math.sin(th)*r;
+}
+const cur = new Float32Array(S[0]);   // estado interpolado
+
+/* ═══ canvas ═══ */
+let CW,CH,cols,rows,cell,fontPx,dpr,zbuf,lbuf;
+function resize(){
+  dpr = Math.min(devicePixelRatio||1, 1.5);
+  CW = innerWidth; CH = innerHeight;
+  cv.width = Math.floor(CW*dpr); cv.height = Math.floor(CH*dpr);
+  cv.style.width = CW+'px'; cv.style.height = CH+'px';
+  fontPx = CW<700 ? 13 : 15; cell = fontPx*.62;
+  cols = Math.ceil(CW/cell)+1; rows = Math.ceil(CH/(fontPx*1.02))+1;
+  zbuf = new Float32Array(cols*rows); lbuf = new Float32Array(cols*rows);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.font = fontPx+'px "IBM Plex Mono", ui-monospace, "DejaVu Sans Mono", monospace';
+  ctx.textBaseline = 'top';
+}
+resize();
+let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(resize,140); });
+
+let tmx=.72,tmy=.45,mx=.72,my=.45;
+addEventListener('pointermove', e=>{ tmx=e.clientX/innerWidth; tmy=e.clientY/innerHeight; }, {passive:true});
+
+let A=0,B=0,spin=0,lastY=0;
+function project(){
+  zbuf.fill(0); lbuf.fill(0);
+  const tgt = S[shapeTo];
+  const K2 = 6.0, K1 = rows*K2*.50/3.4;
+  const tiltX = (my-.5)*0.9, tiltY = (mx-.5)*1.1;
+  const cA=Math.cos(A+tiltX), sA=Math.sin(A+tiltX), cB=Math.cos(B+tiltY), sB=Math.sin(B+tiltY);
+  const ox = cols*0.72, oy = rows*0.50;
+  const ex = burst*3.4;
+
+  for(let i=0;i<P;i++){
+    const o = i*6;
+    // montagem: converge para a forma alvo
+    for(let k=0;k<6;k++) cur[o+k] += (tgt[o+k]-cur[o+k])*0.055;
+
+    let x = cur[o] + dir[i*3]*ex, y = cur[o+1] + dir[i*3+1]*ex, z = cur[o+2] + dir[i*3+2]*ex;
+    let nx = cur[o+3], ny = cur[o+4], nz = cur[o+5];
+
+    // rot Y
+    let x1 = x*cB + z*sB, z1 = -x*sB + z*cB;
+    let nx1 = nx*cB + nz*sB, nz1 = -nx*sB + nz*cB;
+    // rot X
+    const y2 = y*cA - z1*sA, z2 = y*sA + z1*cA;
+    const ny2 = ny*cA - nz1*sA, nz2 = ny*sA + nz1*cA;
+
+    const zz = z2 + K2; if(zz <= .3) continue;
+    const ooz = 1/zz;
+    const xp = (ox + K1*ooz*x1*0.56)|0;
+    const yp = (oy - K1*ooz*y2*0.32)|0;
+    if(xp<0||xp>=cols||yp<0||yp>=rows) continue;
+
+    // luz vinda de cima-esquerda-frente
+    const L = nx1*(-0.42) + ny2*0.62 + nz2*(-0.66);
+    if(L <= 0.02) continue;
+    const id = yp*cols + xp;
+    if(ooz > zbuf[id]){ zbuf[id] = ooz; lbuf[id] = L; }
+  }
+}
+
+/* ═══ boot ═══ */
+const LOG = ["> renderizador ascii", "> 3.400 pontos alocados", "> joão victor · rondonópolis mt"];
+let boot = reduce ? 1 : 0, bootDone = reduce, logI = 0, logC = 0;
+const bootEl = document.getElementById('boot'), logEl = document.getElementById('bootlog');
+if(reduce){ body.classList.remove('booting'); body.classList.add('booted'); bootEl.remove(); }
+function finishBoot(){
+  if(bootDone) return; bootDone = true; boot = 1;
+  body.classList.remove('booting'); body.classList.add('booted');
+  bootEl.classList.add('gone'); setTimeout(()=>bootEl.remove(), 400);
+  document.querySelectorAll('[data-boot]').forEach((el,i)=>setTimeout(()=>scramble(el,18), 40+i*110));
+  burst = 1;
+}
+addEventListener('wheel', ()=>{ if(!bootDone) finishBoot(); }, {passive:true, once:true});
+addEventListener('pointerdown', ()=>{ if(!bootDone) finishBoot(); }, {once:true});
+addEventListener('keydown', e=>{ if(!bootDone && (e.key===' '||e.key==='Enter'||e.key==='Escape')) finishBoot(); });
+
+/* ═══ loop ═══ */
+let t0=performance.now(), visible=true, last=0;
+document.addEventListener('visibilitychange', ()=>{ visible=!document.hidden; });
+
+function draw(now){
+  requestAnimationFrame(draw);
+  if(!visible) return;
+  if(now-last < 33) return;
+  last = now;
+
+  const el = (now-t0)/1000;
+
+  /* boot 0→1 em ~0,8s */
+  if(!bootDone){
+    boot = Math.min(1, el/0.8);
+    const want = Math.min(LOG.length, Math.floor(boot*LOG.length*1.15));
+    if(want > logI){ logI = want; logC = 0; blip(1200 - logI*120, .04, 'square', .015); }
+    logEl.textContent = LOG.slice(0, logI).join('\n');
+    if(boot >= 1) finishBoot();
+  }
+
+  const maxS = Math.max(1, document.body.scrollHeight - innerHeight);
+  const p = Math.min(1, scrollY/maxS);
+  phase += (tPhase-phase)*.06;
+  mx += (tmx-mx)*.07; my += (tmy-my)*.07;
+  if(Math.abs(phase-lastBuilt) > .012) buildColors(phase);
+
+  const dy = scrollY-lastY; lastY = scrollY;
+  spin += (Math.min(.09, Math.abs(dy)*.0011) - spin)*.12;
+  if(!reduce){ A += .015 + spin; B += .009 + spin*.6; }
+
+  burst  *= 0.945;  if(burst  < .0015) burst  = 0;
+  glitch *= 0.90;   if(glitch < .01)   glitch = 0;
+
+  project();
+
+  const morph = Math.min(1, Math.max(0,(p-.14)/.38));
+  const ramp = morph > .5 ? RAMP_BLOCK : RAMP_DOT;
+  const lh = fontPx*1.02;
+
+  ctx.fillStyle = '#07090B';
+  ctx.fillRect(0,0,CW,CH);
+
+  const amx = mx*cols, amy = my*rows;
+  // raio do "nascimento": o campo brota do centro
+  const bootR = bootDone ? 1e9 : Math.pow(boot,1.7)*Math.hypot(cols,rows)*0.85;
+  const bcx = cols*.72, bcy = rows*.5;
+
+  for(let r=0;r<rows;r++){
+    const y = r*lh;
+    const gx = glitch > .02 ? (Math.random()-.5)*glitch*90*(Math.random()<.25?1:0) : 0;
+    let runStart=0, runLvl=-1, run='';
+    for(let c=0;c<cols;c++){
+      let v;
+      const L = lbuf[r*cols+c];
+      if(L > 0){
+        v = 0.34 + L*0.70;
+      } else {
+        const nx = c*.085 + el*.38, ny = r*.145 - el*.22;
+        const w1 = fbm(nx+5.2, ny+2.1);
+        v = fbm(nx + w1*2.4, ny + w1*1.8);
+        const dx=(c-amx)*.055, dyy=(r-amy)*.085;
+        v += .45*Math.exp(-(dx*dx+dyy*dyy)*1.6);
+        v *= .36 + .64*Math.min(1, Math.max(0,(c/cols-.30)/.42));
+      }
+      if(glitch > .02 && Math.random() < glitch*.10) v = Math.random();
+
+      if(!bootDone){
+        const d = Math.hypot((c-bcx)*.62, (r-bcy));
+        if(d > bootR){ v = 0; }
+        else if(d > bootR-6){ v *= Math.random() < .5 ? 1.6 : 0; }
+      }
+
+      let lvl = (v*LEVELS)|0;
+      if(lvl<0) lvl=0; else if(lvl>LEVELS-1) lvl=LEVELS-1;
+
+      if(lvl !== runLvl){
+        if(run && runLvl>0){ ctx.fillStyle=colors[runLvl]; ctx.fillText(run, runStart*cell+gx, y); }
+        run=''; runLvl=lvl; runStart=c;
+      }
+      run += ramp[lvl];
+    }
+    if(run && runLvl>0){ ctx.fillStyle=colors[runLvl]; ctx.fillText(run, runStart*cell+gx, y); }
+  }
+}
+requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
