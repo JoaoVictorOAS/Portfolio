@@ -18,10 +18,10 @@
   --gut:clamp(20px,4vw,56px);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;overflow-x:hidden}
 body{margin:0;background:var(--bg);color:var(--fg);
   font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.62;
-  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;width:100%}
 a{color:inherit} b,strong{font-weight:600}
 body.booting{overflow:hidden;height:100vh}
 
@@ -96,6 +96,33 @@ body.booted .bar{opacity:1}
 .snd.on{color:var(--accent)}
 @media(max-width:940px){.links{display:none}}
 
+/* ── menu hambúrguer (mobile) ── */
+.hamb{display:none;width:44px;height:44px;flex:0 0 44px;flex-direction:column;justify-content:center;
+  align-items:center;gap:5px;background:none;border:0;border-left:1px solid var(--line);
+  padding:0;margin:0;cursor:pointer}
+.hamb span{display:block;width:18px;height:2px;background:var(--fg);
+  transition:transform .3s ease,opacity .2s ease}
+.hamb[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamb[aria-expanded="true"] span:nth-child(2){opacity:0}
+.hamb[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:940px){.hamb{display:flex}}
+@media(pointer:fine){.hamb{cursor:none}}
+
+.mnav-backdrop{position:fixed;inset:44px 0 0 0;z-index:15;background:rgba(7,9,11,.55);
+  opacity:0;pointer-events:none;transition:opacity .28s ease}
+.mnav-backdrop.open{opacity:1;pointer-events:auto}
+.mnav{position:fixed;top:44px;right:0;bottom:0;z-index:16;width:min(76vw,300px);
+  background:rgba(7,9,11,.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-left:1px solid var(--line);display:flex;flex-direction:column;padding:10px 0;overflow-y:auto;
+  transform:translateX(100%);transition:transform .32s ease;box-shadow:-24px 0 60px -30px rgba(0,0,0,.9)}
+.mnav.open{transform:translateX(0)}
+.mnav a{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;padding:16px 22px;border-bottom:1px solid var(--line);
+  transition:color .18s,background .18s}
+.mnav a:hover,.mnav a:focus-visible{color:var(--accent);background:rgba(228,231,226,.04)}
+@media(min-width:941px){.mnav,.mnav-backdrop{display:none!important}}
+@media(prefers-reduced-motion:reduce){.mnav{transition:none}.mnav-backdrop{transition:none}}
+
 /* ── hero ── */
 .hero{min-height:100svh;display:flex;align-items:center;padding:120px 0 70px}
 .coords{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
@@ -141,17 +168,18 @@ section::before,.hero::before{
 }
 section > .wrap,.hero > .wrap{position:relative;z-index:1}
 section{padding:110px 0}
-.head{display:flex;align-items:center;gap:14px;margin-bottom:38px;
+.head{display:flex;align-items:center;flex-wrap:wrap;row-gap:8px;column-gap:14px;margin-bottom:38px;
   padding:10px clamp(12px,1.6vw,18px);
   background-color:rgba(7,9,11,.86);
   background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
   border:1px solid var(--line);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .head h2{font-family:"Martian Mono",monospace;font-weight:800;font-size:clamp(18px,3vw,34px);
-  letter-spacing:-.05em;text-transform:uppercase;margin:0;white-space:nowrap}
-.head .rule{flex:1;height:1px;background:var(--line)}
+  letter-spacing:-.05em;text-transform:uppercase;margin:0;min-width:0;max-width:100%;
+  white-space:normal;overflow-wrap:break-word;word-break:break-word}
+.head .rule{flex:1 1 24px;min-width:24px;height:1px;background:var(--line)}
 .head .note{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--faint);white-space:nowrap}
+  color:var(--faint);white-space:normal;overflow-wrap:break-word;word-break:break-word;max-width:100%}
 .head .blk{font-family:monospace;color:var(--accent);font-size:16px;line-height:1;animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
 
@@ -203,6 +231,7 @@ section{padding:110px 0}
 .repo:hover{background:var(--accent);color:var(--bg)}
 .repo s{text-decoration:none;color:var(--faint)}
 .repo:hover s{color:rgba(7,9,11,.6)}
+@media(max-width:480px){.repo{white-space:normal;word-break:break-word;flex:1 1 100%}}
 
 .tape{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:11px 0;white-space:nowrap;
   background-color:rgba(7,9,11,.86);
@@ -304,9 +333,21 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
         <a href="#contato" data-scramble>contato</a>
       </nav>
       <button class="snd on" id="snd" type="button" aria-pressed="true">som ●</button>
+      <button class="hamb" id="hamb" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Abrir menu de navegação">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </div>
+
+<div class="mnav-backdrop" id="mnavBackdrop"></div>
+<nav class="mnav" id="mnav" aria-label="Navegação principal" aria-hidden="true" inert>
+  <a href="#agora">agora</a>
+  <a href="#trajetoria">trajetória</a>
+  <a href="#projetos">projetos</a>
+  <a href="#stack">stack</a>
+  <a href="#contato">contato</a>
+</nav>
 
 <div class="shell">
 
@@ -514,6 +555,49 @@ sndBtn.addEventListener('click', ()=>{
   if(sndOn) blip(880,.07,'square');
 });
 
+/* ═════════ MENU MOBILE ═════════ */
+const hamb = document.getElementById('hamb');
+const mnav = document.getElementById('mnav');
+const mnavBackdrop = document.getElementById('mnavBackdrop');
+const mnavLinks = [...mnav.querySelectorAll('a')];
+let mnavOpen = false;
+
+function setMnav(open){
+  mnavOpen = open;
+  hamb.setAttribute('aria-expanded', String(open));
+  mnav.classList.toggle('open', open);
+  mnavBackdrop.classList.toggle('open', open);
+  mnav.setAttribute('aria-hidden', String(!open));
+  if(open){
+    mnav.removeAttribute('inert');
+    body.style.overflow = 'hidden';
+    mnavLinks[0] && mnavLinks[0].focus();
+  } else {
+    mnav.setAttribute('inert', '');
+    body.style.overflow = '';
+  }
+}
+hamb.addEventListener('click', ()=>{
+  unlockAudio();
+  setMnav(!mnavOpen);
+  if(sndOn) blip(700,.05,'square',.015);
+});
+mnavBackdrop.addEventListener('click', ()=> setMnav(false));
+mnavLinks.forEach(a=> a.addEventListener('click', ()=> setMnav(false)));
+document.addEventListener('keydown', e=>{
+  if(!mnavOpen) return;
+  if(e.key === 'Escape'){ setMnav(false); hamb.focus(); }
+  else if(e.key === 'Tab'){
+    const focusables = [hamb, ...mnavLinks];
+    if(e.shiftKey && document.activeElement === focusables[0]){
+      e.preventDefault(); focusables[focusables.length-1].focus();
+    } else if(!e.shiftKey && document.activeElement === focusables[focusables.length-1]){
+      e.preventDefault(); focusables[0].focus();
+    }
+  }
+});
+addEventListener('resize', ()=>{ if(mnavOpen && innerWidth > 940) setMnav(false); }, {passive:true});
+
 /* ═════════ SCRAMBLE ═════════ */
 const GLYPH = "▓▒░#@%*+=-:.<>/\\|01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 function scramble(el, speed){
@@ -719,9 +803,10 @@ const cur = new Float32Array(S[0]);   // estado interpolado
 let CW,CH,cols,rows,cell,fontPx,dpr,zbuf,lbuf;
 function resize(){
   dpr = Math.min(devicePixelRatio||1, 1.5);
-  CW = innerWidth; CH = innerHeight;
+  /* getBoundingClientRect em vez de innerWidth: acompanha o tamanho real do canvas (CSS 100%) mesmo se algo mais na página gerar overflow horizontal */
+  const rect = cv.getBoundingClientRect();
+  CW = rect.width; CH = rect.height;
   cv.width = Math.floor(CW*dpr); cv.height = Math.floor(CH*dpr);
-  cv.style.width = CW+'px'; cv.style.height = CH+'px';
   fontPx = CW<700 ? 13 : 15; cell = fontPx*.62;
   cols = Math.ceil(CW/cell)+1; rows = Math.ceil(CH/(fontPx*1.02))+1;
   zbuf = new Float32Array(cols*rows); lbuf = new Float32Array(cols*rows);
@@ -731,6 +816,7 @@ function resize(){
 }
 resize();
 let rt; addEventListener('resize', ()=>{ clearTimeout(rt); rt=setTimeout(resize,140); });
+addEventListener('orientationchange', ()=>{ clearTimeout(rt); rt=setTimeout(resize,140); });
 
 let tmx=.72,tmy=.45,mx=.72,my=.45;
 addEventListener('pointermove', e=>{ tmx=e.clientX/innerWidth; tmy=e.clientY/innerHeight; }, {passive:true});
