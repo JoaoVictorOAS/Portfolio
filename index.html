@@ -79,20 +79,21 @@ body.booted .rail{display:flex}
 @media(max-width:1180px){.rail{display:none!important}}
 
 /* ── barra ── */
-.bar{position:fixed;top:0;left:0;right:0;z-index:6;height:44px;background:rgba(7,9,11,.86);
+.bar{position:fixed;top:0;left:0;right:0;z-index:6;min-height:44px;background:rgba(7,9,11,.86);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;
   opacity:0;transition:opacity .4s ease .1s}
 body.booted .bar{opacity:1}
-.bar .wrap{display:flex;align-items:center;justify-content:space-between;width:100%}
-.tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;min-width:0}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--faint);flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tag b{color:var(--accent);font-weight:500}
-.right{display:flex;align-items:center}
+.right{display:flex;align-items:center;flex-shrink:0;min-width:0}
 .links{display:flex}
 .links a,.snd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--faint);text-decoration:none;padding:0 14px;border-left:1px solid var(--line);
   transition:color .18s,background .18s;line-height:44px;background:none;border-top:0;border-bottom:0;border-right:0}
 .links a:hover,.links a:focus-visible,.snd:hover,.snd:focus-visible{color:var(--bg);background:var(--accent)}
-.snd{border-right:1px solid var(--line);font-family:"IBM Plex Mono",monospace}
+.snd{border-right:1px solid var(--line);font-family:"IBM Plex Mono",monospace;flex-shrink:0;white-space:nowrap}
 .snd.on{color:var(--accent)}
 @media(max-width:940px){.links{display:none}}
 
