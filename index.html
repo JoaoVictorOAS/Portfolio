@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>João Victor — Desenvolvedor Full Stack</title>
 <meta name="description" content="Desenvolvedor full stack em Rondonópolis, MT. Sistemas em produção para saúde, logística e agro. PHP, React, TypeScript." />
+<script>
+(function(){
+  var saved = localStorage.getItem('theme');
+  var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -12,16 +19,29 @@
 <noscript><link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{
-  --bg:#07090B; --fg:#E4E7E2;
+  --bg:#07090B; --bg-rgb:7,9,11;
+  --fg:#E4E7E2; --fg-rgb:228,231,226;
   --dim:rgba(228,231,226,.60); --faint:rgba(228,231,226,.30); --line:rgba(228,231,226,.13);
-  --accent:#F0A32C;
+  --accent:#F0A32C; --on-accent:#07090B; --on-accent-sub:rgba(7,9,11,.75);
+  --panel-bg:rgba(7,9,11,.82); --dot-color:rgba(228,231,226,.06);
+  --scan-line:rgba(0,0,0,.34); --shadow-color:rgba(0,0,0,.9);
+  --text-shadow:rgba(7,9,11,.85); --hover-bg:rgba(228,231,226,.03);
   --gut:clamp(20px,4vw,56px);
+}
+[data-theme="light"]{
+  --bg:#F4F6F9; --bg-rgb:244,246,249;
+  --fg:#0F172A; --fg-rgb:15,23,42;
+  --dim:rgba(15,23,42,.75); --faint:rgba(15,23,42,.45); --line:rgba(15,23,42,.12);
+  --accent:#B45309; --on-accent:#FFFFFF; --on-accent-sub:rgba(255,255,255,.88);
+  --panel-bg:rgba(244,246,249,.86); --dot-color:rgba(15,23,42,.07);
+  --scan-line:rgba(0,0,0,.04); --shadow-color:rgba(15,23,42,.12);
+  --text-shadow:rgba(244,246,249,.95); --hover-bg:rgba(15,23,42,.04);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:hidden}
 body{margin:0;background:var(--bg);color:var(--fg);
   font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15.5px;line-height:1.62;
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;width:100%}
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;width:100%;transition:background-color .3s ease,color .3s ease}
 a{color:inherit} b,strong{font-weight:600}
 body.booting{overflow:hidden;height:100vh}
 
@@ -31,10 +51,11 @@ body.booting{overflow:hidden;height:100vh}
 #ascii{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
 .veil{position:fixed;inset:0;z-index:1;pointer-events:none;
   background:
-   linear-gradient(101deg,rgba(7,9,11,.96) 0%,rgba(7,9,11,.84) 30%,rgba(7,9,11,.10) 58%,rgba(7,9,11,.42) 100%),
-   linear-gradient(0deg,rgba(7,9,11,.90) 0%,rgba(7,9,11,0) 22%,rgba(7,9,11,0) 78%,rgba(7,9,11,.86) 100%)}
+   linear-gradient(101deg,rgba(var(--bg-rgb),.96) 0%,rgba(var(--bg-rgb),.84) 30%,rgba(var(--bg-rgb),.10) 58%,rgba(var(--bg-rgb),.42) 100%),
+   linear-gradient(0deg,rgba(var(--bg-rgb),.90) 0%,rgba(var(--bg-rgb),0) 22%,rgba(var(--bg-rgb),0) 78%,rgba(var(--bg-rgb),.86) 100%)}
 .scan{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.26;
-  background:repeating-linear-gradient(0deg,rgba(0,0,0,.55) 0,rgba(0,0,0,.55) 1px,transparent 1px,transparent 3px)}
+  background:repeating-linear-gradient(0deg,var(--scan-line) 0,var(--scan-line) 1px,transparent 1px,transparent 3px)}
+[data-theme="light"] .scan{opacity:.16}
 #cursor{position:fixed;inset:0;z-index:9;pointer-events:none;display:none}
 #cursor b{position:absolute;top:0;left:0;font-family:"IBM Plex Mono",monospace;font-weight:400;
   font-size:15px;line-height:1;color:var(--accent);will-change:transform}
@@ -53,25 +74,25 @@ body.booted .shell{opacity:1}
 
 /* ── superfície: vidro fosco + trama de pontos + varredura ── */
 .panel{
-  background-color:rgba(7,9,11,.82);
+  background-color:var(--panel-bg);
   background-image:
-    radial-gradient(rgba(228,231,226,.06) .9px, transparent .9px),
-    repeating-linear-gradient(0deg, rgba(0,0,0,.34) 0 1px, rgba(0,0,0,0) 1px 3px);
+    radial-gradient(var(--dot-color) .9px, transparent .9px),
+    repeating-linear-gradient(0deg, var(--scan-line) 0 1px, transparent 1px 3px);
   background-size:5px 5px, 100% 3px;
   background-position:0 0, 0 0;
   -webkit-backdrop-filter:blur(6px) saturate(.8);
   backdrop-filter:blur(6px) saturate(.8);
-  box-shadow:0 0 0 1px rgba(228,231,226,.05), 0 24px 60px -30px rgba(0,0,0,.9);
+  box-shadow:0 0 0 1px var(--line), 0 24px 60px -30px var(--shadow-color);
 }
-h1,.head h2,.contact h2,.role,.lede{text-shadow:0 2px 22px rgba(7,9,11,.85)}
+h1,.head h2,.contact h2,.role,.lede{text-shadow:0 2px 22px var(--text-shadow)}
 
 /* ── trilho lateral ── */
 .rail{position:fixed;left:14px;top:50%;transform:translateY(-50%);z-index:5;display:none;
   flex-direction:column;gap:11px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
   letter-spacing:.18em;text-transform:uppercase}
 body.booted .rail{display:flex}
-.rail a{color:rgba(228,231,226,.22);text-decoration:none;display:flex;align-items:center;gap:8px;
-  transition:color .3s;text-shadow:0 1px 10px rgba(7,9,11,.95)}
+.rail a{color:var(--faint);text-decoration:none;display:flex;align-items:center;gap:8px;
+  transition:color .3s;text-shadow:0 1px 10px var(--text-shadow)}
 .rail a::before{content:"";width:14px;height:1px;background:currentColor;transition:width .3s}
 .rail a.on{color:var(--accent)}
 .rail a.on::before{width:30px}
@@ -79,9 +100,9 @@ body.booted .rail{display:flex}
 @media(max-width:1180px){.rail{display:none!important}}
 
 /* ── barra ── */
-.bar{position:fixed;top:0;left:0;right:0;z-index:6;min-height:44px;background:rgba(7,9,11,.86);
+.bar{position:fixed;top:0;left:0;right:0;z-index:6;min-height:44px;background:rgba(var(--bg-rgb),.86);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;
-  opacity:0;transition:opacity .4s ease .1s}
+  opacity:0;transition:opacity .4s ease .1s,background .3s ease}
 body.booted .bar{opacity:1}
 .bar .wrap{display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;min-width:0}
 .tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
@@ -89,12 +110,13 @@ body.booted .bar{opacity:1}
 .tag b{color:var(--accent);font-weight:500}
 .right{display:flex;align-items:center;flex-shrink:0;min-width:0}
 .links{display:flex}
-.links a,.snd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+.links a,.snd,.thm{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--faint);text-decoration:none;padding:0 14px;border-left:1px solid var(--line);
-  transition:color .18s,background .18s;line-height:44px;background:none;border-top:0;border-bottom:0;border-right:0}
-.links a:hover,.links a:focus-visible,.snd:hover,.snd:focus-visible{color:var(--bg);background:var(--accent)}
-.snd{border-right:1px solid var(--line);font-family:"IBM Plex Mono",monospace;flex-shrink:0;white-space:nowrap}
+  transition:color .18s,background .18s;line-height:44px;background:none;border-top:0;border-bottom:0;border-right:0;cursor:pointer}
+.links a:hover,.links a:focus-visible,.snd:hover,.snd:focus-visible,.thm:hover,.thm:focus-visible{color:var(--on-accent);background:var(--accent)}
+.snd{font-family:"IBM Plex Mono",monospace;flex-shrink:0;white-space:nowrap}
 .snd.on{color:var(--accent)}
+.thm{border-right:1px solid var(--line);font-family:"IBM Plex Mono",monospace;flex-shrink:0;white-space:nowrap}
 @media(max-width:940px){.links{display:none}}
 
 /* ── menu hambúrguer (mobile) ── */
@@ -109,18 +131,18 @@ body.booted .bar{opacity:1}
 @media(max-width:940px){.hamb{display:flex}}
 @media(pointer:fine){.hamb{cursor:none}}
 
-.mnav-backdrop{position:fixed;inset:44px 0 0 0;z-index:15;background:rgba(7,9,11,.55);
+.mnav-backdrop{position:fixed;inset:44px 0 0 0;z-index:15;background:rgba(var(--bg-rgb),.55);
   opacity:0;pointer-events:none;transition:opacity .28s ease}
 .mnav-backdrop.open{opacity:1;pointer-events:auto}
 .mnav{position:fixed;top:44px;right:0;bottom:0;z-index:16;width:min(76vw,300px);
-  background:rgba(7,9,11,.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  background:rgba(var(--bg-rgb),.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   border-left:1px solid var(--line);display:flex;flex-direction:column;padding:10px 0;overflow-y:auto;
-  transform:translateX(100%);transition:transform .32s ease;box-shadow:-24px 0 60px -30px rgba(0,0,0,.9)}
+  transform:translateX(100%);transition:transform .32s ease,background .3s ease;box-shadow:-24px 0 60px -30px var(--shadow-color)}
 .mnav.open{transform:translateX(0)}
-.mnav a{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+.mnav a,.mnav button{font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--dim);text-decoration:none;padding:16px 22px;border-bottom:1px solid var(--line);
-  transition:color .18s,background .18s}
-.mnav a:hover,.mnav a:focus-visible{color:var(--accent);background:rgba(228,231,226,.04)}
+  transition:color .18s,background .18s;background:none;border-top:0;border-left:0;border-right:0;text-align:left;cursor:pointer;width:100%}
+.mnav a:hover,.mnav a:focus-visible,.mnav button:hover,.mnav button:focus-visible{color:var(--accent);background:var(--hover-bg)}
 @media(min-width:941px){.mnav,.mnav-backdrop{display:none!important}}
 @media(prefers-reduced-motion:reduce){.mnav{transition:none}.mnav-backdrop{transition:none}}
 
@@ -141,9 +163,9 @@ h1 i{font-style:normal;color:var(--accent)}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .readout{margin-top:52px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   display:grid;grid-template-columns:repeat(3,1fr)}
-.readout{background-color:rgba(7,9,11,.82);
-  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+.readout{background-color:rgba(var(--bg-rgb),.82);
+  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   background-size:5px 5px,100% 3px;
   -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
 .readout div{padding:16px 20px 18px;border-right:1px solid var(--line)}
@@ -160,9 +182,9 @@ section,.hero{position:relative}
 section::before,.hero::before{
   content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
   background-image:
-    radial-gradient(rgba(228,231,226,.05) .9px, transparent .9px),
-    repeating-linear-gradient(0deg, rgba(0,0,0,.26) 0 1px, rgba(0,0,0,0) 1px 3px),
-    linear-gradient(101deg, rgba(7,9,11,.90) 0%, rgba(7,9,11,.76) 44%, rgba(7,9,11,.14) 76%, rgba(7,9,11,0) 100%);
+    radial-gradient(var(--dot-color) .9px, transparent .9px),
+    repeating-linear-gradient(0deg, var(--scan-line) 0 1px, transparent 1px 3px),
+    linear-gradient(101deg, rgba(var(--bg-rgb),.90) 0%, rgba(var(--bg-rgb),.76) 44%, rgba(var(--bg-rgb),.14) 76%, rgba(var(--bg-rgb),0) 100%);
   background-size:5px 5px, 100% 3px, 100% 100%;
   -webkit-backdrop-filter:blur(3px) saturate(.9);
   backdrop-filter:blur(3px) saturate(.9);
@@ -171,8 +193,8 @@ section > .wrap,.hero > .wrap{position:relative;z-index:1}
 section{padding:110px 0}
 .head{display:flex;align-items:center;flex-wrap:wrap;row-gap:8px;column-gap:14px;margin-bottom:38px;
   padding:10px clamp(12px,1.6vw,18px);
-  background-color:rgba(7,9,11,.86);
-  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-color:rgba(var(--bg-rgb),.86);
+  background-image:repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   border:1px solid var(--line);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .head h2{font-family:"Martian Mono",monospace;font-weight:800;font-size:clamp(18px,3vw,34px);
@@ -187,7 +209,7 @@ section{padding:110px 0}
 .now{border-top:1px solid var(--line);padding:0 clamp(14px,2vw,26px)}
 .job{display:grid;grid-template-columns:230px 1fr 170px;gap:28px;padding:26px 0;
   border-bottom:1px solid var(--line);transition:background .25s}
-.job:hover{background:rgba(228,231,226,.03)}
+.job:hover{background:var(--hover-bg)}
 .job .co{font-family:"Martian Mono",monospace;font-weight:600;font-size:14px;letter-spacing:-.03em;text-transform:uppercase}
 .job .co em{display:block;font-style:normal;font-family:"IBM Plex Mono",monospace;font-weight:400;
   font-size:10.5px;letter-spacing:.13em;color:var(--accent);margin-top:8px;text-transform:uppercase}
@@ -201,42 +223,42 @@ section{padding:110px 0}
 .projs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;perspective:1100px}
 .proj{padding:26px 24px 24px;border:1px solid var(--line);text-decoration:none;
   display:flex;flex-direction:column;transform-style:preserve-3d;
-  background-color:rgba(7,9,11,.93);
-  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-color:rgba(var(--bg-rgb),.93);
+  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   background-size:5px 5px,100% 3px;
-  box-shadow:0 24px 60px -30px rgba(0,0,0,.95), inset 0 0 60px rgba(0,0,0,.5);
+  box-shadow:0 24px 60px -30px var(--shadow-color), inset 0 0 60px var(--hover-bg);
   transition:background-color .25s,color .25s,border-color .25s,transform .12s ease-out;will-change:transform}
 .proj:hover,.proj:focus-visible{background-color:var(--accent);background-image:none;
-  color:var(--bg);border-color:var(--accent)}
+  color:var(--on-accent);border-color:var(--accent)}
 .proj .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--faint);margin:0 0 14px;transform:translateZ(18px)}
-.proj:hover .k{color:rgba(7,9,11,.55)}
+.proj:hover .k{color:var(--on-accent-sub)}
 .proj h3{font-family:"Martian Mono",monospace;font-weight:600;font-size:15px;letter-spacing:-.04em;
   text-transform:uppercase;margin:0 0 12px;line-height:1.25;transform:translateZ(36px)}
 .proj p{margin:0 0 20px;font-size:14px;color:var(--dim);flex:1;transform:translateZ(12px)}
-.proj:hover p{color:rgba(7,9,11,.78)}
+.proj:hover p{color:var(--on-accent-sub)}
 .proj .u{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--accent);word-break:break-all;transform:translateZ(24px)}
-.proj:hover .u{color:var(--bg)}
+.proj:hover .u{color:var(--on-accent)}
 @media(max-width:880px){.projs{grid-template-columns:1fr;perspective:none}.proj{transform:none!important}}
 
 .repos{display:flex;flex-wrap:wrap;margin-top:22px;border:1px solid var(--line);border-right:0;border-bottom:0;
-  background-color:rgba(7,9,11,.82);
-  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-color:rgba(var(--bg-rgb),.82);
+  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   background-size:5px 5px,100% 3px;
   -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
 .repo{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--dim);text-decoration:none;padding:10px 15px;
   border-right:1px solid var(--line);border-bottom:1px solid var(--line);flex:1 1 auto;white-space:nowrap;
   transition:background .2s,color .2s}
-.repo:hover{background:var(--accent);color:var(--bg)}
+.repo:hover{background:var(--accent);color:var(--on-accent)}
 .repo s{text-decoration:none;color:var(--faint)}
-.repo:hover s{color:rgba(7,9,11,.6)}
+.repo:hover s{color:var(--on-accent-sub)}
 @media(max-width:480px){.repo{white-space:normal;word-break:break-word;flex:1 1 100%}}
 
 .tape{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:11px 0;white-space:nowrap;
-  background-color:rgba(7,9,11,.86);
-  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-color:rgba(var(--bg-rgb),.86);
+  background-image:repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .tape .run{display:inline-block;animation:slide 34s linear infinite;font-family:"IBM Plex Mono",monospace;
   font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
@@ -244,9 +266,9 @@ section{padding:110px 0}
 @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 .stack{border-top:1px solid var(--line);padding:0 clamp(14px,2vw,26px);
-  background-color:rgba(7,9,11,.82);
-  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-color:rgba(var(--bg-rgb),.82);
+  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   background-size:5px 5px,100% 3px;
   -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
 .srow{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:17px 0;border-bottom:1px solid var(--line);align-items:baseline}
@@ -255,9 +277,9 @@ section{padding:110px 0}
 @media(max-width:760px){.srow{grid-template-columns:1fr;gap:8px}}
 
 .two{display:grid;grid-template-columns:1.1fr .9fr;gap:60px}
-.two ul,.certs{background-color:rgba(7,9,11,.82);
-  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+.two ul,.certs{background-color:rgba(var(--bg-rgb),.82);
+  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   background-size:5px 5px,100% 3px;
   -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
 .two ul{list-style:none;margin:0;padding:0 clamp(14px,2vw,22px);border-top:1px solid var(--line)}
@@ -274,9 +296,9 @@ section{padding:110px 0}
   letter-spacing:-.06em;text-transform:uppercase;line-height:1;margin:0 0 36px}
 .contact h2 i{font-style:normal;color:var(--accent)}
 .clist{border-top:1px solid var(--line);max-width:820px;padding:0 clamp(14px,2vw,26px);
-  background-color:rgba(7,9,11,.82);
-  background-image:radial-gradient(rgba(228,231,226,.06) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px);
+  background-color:rgba(var(--bg-rgb),.82);
+  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
+    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
   background-size:5px 5px,100% 3px;
   -webkit-backdrop-filter:blur(6px) saturate(.8);backdrop-filter:blur(6px) saturate(.8)}
 .clist a{display:grid;grid-template-columns:130px 1fr 22px;gap:16px;align-items:center;padding:17px 0;
@@ -334,6 +356,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
         <a href="#contato" data-scramble>contato</a>
       </nav>
       <button class="snd on" id="snd" type="button" aria-pressed="true">som ●</button>
+      <button class="thm" id="thm" type="button" aria-label="Alternar tema">tema ☼</button>
       <button class="hamb" id="hamb" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Abrir menu de navegação">
         <span></span><span></span><span></span>
       </button>
@@ -348,6 +371,7 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;paddin
   <a href="#projetos">projetos</a>
   <a href="#stack">stack</a>
   <a href="#contato">contato</a>
+  <button id="mnavThm" type="button">tema: claro ☼</button>
 </nav>
 
 <div class="shell">
@@ -556,6 +580,53 @@ sndBtn.addEventListener('click', ()=>{
   if(sndOn) blip(880,.07,'square');
 });
 
+/* ═════════ TEMA ═════════ */
+const thmBtn = document.getElementById('thm');
+const mnavThm = document.getElementById('mnavThm');
+let currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+
+function updateThemeUI(theme){
+  const isLight = theme === 'light';
+  if(thmBtn){
+    thmBtn.textContent = isLight ? 'tema ☼' : 'tema ☾';
+    thmBtn.setAttribute('aria-label', isLight ? 'Alternar para tema escuro' : 'Alternar para tema claro');
+  }
+  if(mnavThm){
+    mnavThm.textContent = isLight ? 'tema: claro ☼' : 'tema: escuro ☾';
+  }
+}
+
+function setTheme(theme, save = true){
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  if(save) localStorage.setItem('theme', theme);
+  updateThemeUI(theme);
+  
+  const activePal = theme === 'light' ? PAL_LIGHT : PAL_DARK;
+  document.documentElement.style.setProperty('--accent', activePal[tPhase].css);
+  
+  lastBuilt = -9;
+  buildColors(phase);
+}
+
+updateThemeUI(currentTheme);
+
+function toggleTheme(){
+  unlockAudio();
+  const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+  setTheme(nextTheme, true);
+  if(sndOn) blip(nextTheme === 'light' ? 1200 : 700, .07, 'square', .02);
+}
+
+if(thmBtn) thmBtn.addEventListener('click', toggleTheme);
+if(mnavThm) mnavThm.addEventListener('click', toggleTheme);
+
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', e=>{
+  if(!localStorage.getItem('theme')){
+    setTheme(e.matches ? 'light' : 'dark', false);
+  }
+});
+
 /* ═════════ MENU MOBILE ═════════ */
 const hamb = document.getElementById('hamb');
 const mnav = document.getElementById('mnav');
@@ -642,17 +713,27 @@ const cio = new IntersectionObserver(es=>es.forEach(e=>{
 document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
 
 /* ═════════ PALETA / FORMA POR SEÇÃO ═════════ */
-const PAL = [
+const PAL_DARK = [
   { css:'#F0A32C', stops:['#0B0D0E','#3A2A0C','#B0761E','#F0A32C','#FFD98A'] },
   { css:'#FF5A36', stops:['#0D0A0A','#3E1409','#A8331A','#FF5A36','#FFB199'] },
   { css:'#6FE0BC', stops:['#080D0C','#0E2E27','#2E8C74','#6FE0BC','#C4F5E7'] }
 ];
+const PAL_LIGHT = [
+  { css:'#B45309', stops:['#F4F6F9','#FDE68A','#F59E0B','#B45309','#451A03'] },
+  { css:'#E11D48', stops:['#F4F6F9','#FECDD3','#FB7185','#E11D48','#4C0519'] },
+  { css:'#0D9488', stops:['#F4F6F9','#99F6E4','#2DD4BF','#0D9488','#042F2E'] }
+];
+
 let tPhase = 0, phase = 0, shapeTo = 0, glitch = 0, burst = 0;
 const railLinks = [...document.querySelectorAll('.rail a')];
 const pio = new IntersectionObserver(es=>es.forEach(e=>{
   if(!e.isIntersecting || e.intersectionRatio <= .4) return;
   const ph = +e.target.dataset.phase, sh = +e.target.dataset.shape;
-  if(ph !== tPhase){ tPhase = ph; document.documentElement.style.setProperty('--accent', PAL[ph].css); }
+  if(ph !== tPhase){
+    tPhase = ph;
+    const activePal = currentTheme === 'light' ? PAL_LIGHT : PAL_DARK;
+    document.documentElement.style.setProperty('--accent', activePal[ph].css);
+  }
   if(sh !== shapeTo){ shapeTo = sh; burst = 1; glitch = 1; blip(180 + sh*90, .16, 'sawtooth', .03); }
   const id = e.target.id;
   railLinks.forEach(a=>a.classList.toggle('on', a.dataset.rail === id));
@@ -729,8 +810,9 @@ function fbm(x,y){ let v=0,A=.5,fx=x,fy=y;
 function hex(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
 const colors = new Array(LEVELS); let lastBuilt = -9;
 function buildColors(ph){
+  const activePal = currentTheme === 'light' ? PAL_LIGHT : PAL_DARK;
   const i0=Math.min(2,Math.floor(ph)), i1=Math.min(2,i0+1), m=ph-i0;
-  const A=PAL[i0].stops.map(hex), B=PAL[i1].stops.map(hex);
+  const A=activePal[i0].stops.map(hex), B=activePal[i1].stops.map(hex);
   for(let l=0;l<LEVELS;l++){
     const t=l/(LEVELS-1)*(A.length-1);
     const s0=Math.min(A.length-1,Math.floor(t)), s1=Math.min(A.length-1,s0+1), f=t-s0, o=[0,0,0];
@@ -917,7 +999,7 @@ function draw(now){
   const ramp = morph > .5 ? RAMP_BLOCK : RAMP_DOT;
   const lh = fontPx*1.02;
 
-  ctx.fillStyle = '#07090B';
+  ctx.fillStyle = currentTheme === 'light' ? '#F4F6F9' : '#07090B';
   ctx.fillRect(0,0,CW,CH);
 
   const amx = mx*cols, amy = my*rows;
