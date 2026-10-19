@@ -24,7 +24,7 @@
   --fg:#E4E7E2; --fg-rgb:228,231,226;
   --dim:rgba(228,231,226,.60); --faint:rgba(228,231,226,.30); --line:rgba(228,231,226,.13);
   --accent:#F0A32C; --on-accent:#07090B; --on-accent-sub:rgba(7,9,11,.75);
-  --panel-bg:rgba(7,9,11,.92); --dot-color:rgba(228,231,226,.06);
+  --panel-bg:rgba(7,9,11,.92); --dot-color:rgba(228,231,226,.08);
   --scan-line:rgba(0,0,0,.34); --shadow-color:rgba(0,0,0,.9);
   --text-shadow:rgba(7,9,11,.85); --hover-bg:rgba(228,231,226,.03);
   --gut:clamp(20px,4vw,56px);
@@ -34,7 +34,7 @@
   --fg:#0F172A; --fg-rgb:15,23,42;
   --dim:rgba(15,23,42,.75); --faint:rgba(15,23,42,.45); --line:rgba(15,23,42,.12);
   --accent:#B45309; --on-accent:#FFFFFF; --on-accent-sub:rgba(255,255,255,.88);
-  --panel-bg:rgba(244,246,249,.94); --dot-color:rgba(15,23,42,.07);
+  --panel-bg:rgba(244,246,249,.94); --dot-color:rgba(15,23,42,.09);
   --scan-line:rgba(0,0,0,.04); --shadow-color:rgba(15,23,42,.12);
   --text-shadow:rgba(244,246,249,.95); --hover-bg:rgba(15,23,42,.04);
 }
@@ -54,9 +54,9 @@ body.booting{overflow:hidden;height:100vh}
   background:
    linear-gradient(101deg,rgba(var(--bg-rgb),.96) 0%,rgba(var(--bg-rgb),.84) 30%,rgba(var(--bg-rgb),.10) 58%,rgba(var(--bg-rgb),.42) 100%),
    linear-gradient(0deg,rgba(var(--bg-rgb),.90) 0%,rgba(var(--bg-rgb),0) 22%,rgba(var(--bg-rgb),0) 78%,rgba(var(--bg-rgb),.86) 100%)}
-.scan{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.26;
-  background:repeating-linear-gradient(0deg,var(--scan-line) 0,var(--scan-line) 1px,transparent 1px,transparent 3px)}
-[data-theme="light"] .scan{opacity:.16}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.22;
+  background:repeating-linear-gradient(0deg,var(--scan-line) 0,var(--scan-line) 1px,transparent 1px,transparent 4px)}
+[data-theme="light"] .scan{opacity:.12}
 #cursor{position:fixed;inset:0;z-index:9;pointer-events:none;display:none}
 #cursor b{position:absolute;top:0;left:0;font-family:"IBM Plex Mono",monospace;font-weight:400;
   font-size:15px;line-height:1;color:var(--accent);will-change:transform}
@@ -76,11 +76,9 @@ body.booted .shell{opacity:1}
 /* ── superfície: vidro fosco + trama de pontos + varredura ── */
 .panel{
   background-color:var(--panel-bg);
-  background-image:
-    radial-gradient(var(--dot-color) .9px, transparent .9px),
-    repeating-linear-gradient(0deg, var(--scan-line) 0 1px, transparent 1px 3px);
-  background-size:5px 5px, 100% 3px;
-  background-position:0 0, 0 0;
+  background-image:radial-gradient(var(--dot-color) 1px, transparent 1px);
+  background-size:22px 22px;
+  background-position:0 0;
   box-shadow:0 0 0 1px var(--line), 0 24px 60px -30px var(--shadow-color);
 }
 h1,.head h2,.contact h2,.role,.lede{text-shadow:0 2px 22px var(--text-shadow)}
@@ -163,9 +161,8 @@ h1 i{font-style:normal;color:var(--accent)}
 .readout{margin-top:52px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   display:grid;grid-template-columns:repeat(3,1fr)}
 .readout{background-color:var(--panel-bg);
-  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
-  background-size:5px 5px,100% 3px}
+  background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);
+  background-size:22px 22px}
 .readout div{padding:16px 20px 18px;border-right:1px solid var(--line)}
 .readout div:last-child{border-right:0}
 .readout dt{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
@@ -180,21 +177,16 @@ section,.hero{position:relative}
 section::before,.hero::before{
   content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
   background-image:
-    radial-gradient(var(--dot-color) .9px, transparent .9px),
-    repeating-linear-gradient(0deg, var(--scan-line) 0 1px, transparent 1px 3px),
+    radial-gradient(var(--dot-color) 1px, transparent 1px),
     linear-gradient(101deg, rgba(var(--bg-rgb),.90) 0%, rgba(var(--bg-rgb),.76) 44%, rgba(var(--bg-rgb),.14) 76%, rgba(var(--bg-rgb),0) 100%);
-  background-size:5px 5px, 100% 3px, 100% 100%;
-  -webkit-backdrop-filter:blur(3px) saturate(.9);
-  backdrop-filter:blur(3px) saturate(.9);
+  background-size:22px 22px, 100% 100%;
 }
 section > .wrap,.hero > .wrap{position:relative;z-index:1}
 section{padding:110px 0}
 .head{display:flex;align-items:center;flex-wrap:wrap;row-gap:8px;column-gap:14px;margin-bottom:38px;
   padding:10px clamp(12px,1.6vw,18px);
-  background-color:rgba(var(--bg-rgb),.86);
-  background-image:repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
-  border:1px solid var(--line);
-  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  background-color:var(--panel-bg);
+  border:1px solid var(--line)}
 .head h2{font-family:"Martian Mono",monospace;font-weight:800;font-size:clamp(18px,3vw,34px);
   letter-spacing:-.05em;text-transform:uppercase;margin:0;min-width:0;max-width:100%;
   white-space:normal;overflow-wrap:break-word;word-break:break-word}
@@ -222,9 +214,8 @@ section{padding:110px 0}
 .proj{padding:26px 24px 24px;border:1px solid var(--line);text-decoration:none;
   display:flex;flex-direction:column;
   background-color:rgba(var(--bg-rgb),.93);
-  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
-  background-size:5px 5px,100% 3px;
+  background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);
+  background-size:22px 22px;
   box-shadow:0 24px 60px -30px var(--shadow-color), inset 0 0 60px var(--hover-bg);
   transition:background-color .2s,color .2s,border-color .2s,transform .2s ease}
 .proj:hover,.proj:focus-visible{background-color:var(--accent);background-image:none;
@@ -242,9 +233,8 @@ section{padding:110px 0}
 
 .repos{display:flex;flex-wrap:wrap;margin-top:22px;border:1px solid var(--line);border-right:0;border-bottom:0;
   background-color:var(--panel-bg);
-  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
-  background-size:5px 5px,100% 3px}
+  background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);
+  background-size:22px 22px}
 .repo{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--dim);text-decoration:none;padding:10px 15px;
   border-right:1px solid var(--line);border-bottom:1px solid var(--line);flex:1 1 auto;white-space:nowrap;
   transition:background .2s,color .2s}
@@ -254,8 +244,7 @@ section{padding:110px 0}
 @media(max-width:480px){.repo{white-space:normal;word-break:break-word;flex:1 1 100%}}
 
 .tape{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:11px 0;white-space:nowrap;
-  background-color:var(--panel-bg);
-  background-image:repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px)}
+  background-color:var(--panel-bg)}
 .tape .run{display:inline-block;animation:slide 34s linear infinite;font-family:"IBM Plex Mono",monospace;
   font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
 .tape .run em{font-style:normal;color:var(--accent)}
@@ -263,9 +252,8 @@ section{padding:110px 0}
 
 .stack{border-top:1px solid var(--line);padding:0 clamp(14px,2vw,26px);
   background-color:var(--panel-bg);
-  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
-  background-size:5px 5px,100% 3px}
+  background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);
+  background-size:22px 22px}
 .srow{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:17px 0;border-bottom:1px solid var(--line);align-items:baseline}
 .srow dt{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
 .srow dd{margin:0;font-family:"Martian Mono",monospace;font-size:clamp(11px,1.35vw,14px);letter-spacing:-.02em;line-height:1.9}
@@ -273,9 +261,8 @@ section{padding:110px 0}
 
 .two{display:grid;grid-template-columns:1.1fr .9fr;gap:60px}
 .two ul,.certs{background-color:var(--panel-bg);
-  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
-  background-size:5px 5px,100% 3px}
+  background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);
+  background-size:22px 22px}
 .two ul{list-style:none;margin:0;padding:0 clamp(14px,2vw,22px);border-top:1px solid var(--line)}
 .two li{display:grid;grid-template-columns:64px 1fr;gap:16px;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline}
 .two li b{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--accent);font-weight:400}
@@ -291,9 +278,8 @@ section{padding:110px 0}
 .contact h2 i{font-style:normal;color:var(--accent)}
 .clist{border-top:1px solid var(--line);max-width:820px;padding:0 clamp(14px,2vw,26px);
   background-color:var(--panel-bg);
-  background-image:radial-gradient(var(--dot-color) .9px,transparent .9px),
-    repeating-linear-gradient(0deg,var(--scan-line) 0 1px,transparent 1px 3px);
-  background-size:5px 5px,100% 3px}
+  background-image:radial-gradient(var(--dot-color) 1px,transparent 1px);
+  background-size:22px 22px}
 .clist a{display:grid;grid-template-columns:130px 1fr 22px;gap:16px;align-items:center;padding:17px 0;
   border-bottom:1px solid var(--line);text-decoration:none;transition:color .2s,padding-left .25s}
 .clist a:hover,.clist a:focus-visible{color:var(--accent);padding-left:12px}
@@ -847,14 +833,18 @@ const cur = new Float32Array(S[0]);
 
 /* ═══ canvas ═══ */
 let CW,CH,cols,rows,cell,fontPx,dpr,vectorMap;
+let colSin, colDx2, colFade;
 function resize(){
   dpr = 1;
   const rect = cv.getBoundingClientRect();
   CW = rect.width; CH = rect.height;
   cv.width = Math.floor(CW*dpr); cv.height = Math.floor(CH*dpr);
-  fontPx = CW<700 ? 13 : 15; cell = fontPx*.62;
+  fontPx = CW<700 ? 15 : 18; cell = fontPx*.62;
   cols = Math.ceil(CW/cell)+1; rows = Math.ceil(CH/(fontPx*1.02))+1;
   vectorMap = new Uint8Array(cols*rows);
+  colSin = new Float32Array(cols);
+  colDx2 = new Float32Array(cols);
+  colFade = new Float32Array(cols);
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.font = fontPx+'px "IBM Plex Mono", ui-monospace, "DejaVu Sans Mono", monospace';
   ctx.textBaseline = 'top';
@@ -951,6 +941,14 @@ function draw(now){
   const bootR = bootDone ? 1e9 : Math.pow(boot,1.7)*Math.hypot(cols,rows)*0.85;
   const bcx = cols*.72, bcy = rows*.5;
 
+  const elOffset = el * 0.35;
+  for(let c=0; c<cols; c++){
+    colSin[c] = Math.sin(c * 0.06 + elOffset);
+    const dx = (c - amx) * 0.05;
+    colDx2[c] = dx * dx;
+    colFade[c] = 0.36 + 0.64 * Math.min(1, Math.max(0, (c / cols - 0.25) / 0.45));
+  }
+
   for(let r=0;r<rows;r++){
     const y = r*lh;
     const gx = glitch > .02 ? (Math.random()-.5)*glitch*90*(Math.random()<.25?1:0) : 0;
@@ -958,18 +956,18 @@ function draw(now){
     const dyy = (r - amy) * 0.08;
     const dyy2 = dyy * dyy;
     let runStart=0, runLvl=-1, run='';
+    const rowOffset = r * cols;
 
     for(let c=0;c<cols;c++){
       let v;
-      if(vectorMap[r*cols+c]){
+      if(vectorMap[rowOffset + c]){
         v = 0.92;
       } else {
-        const w = Math.sin(c * 0.06 + el * 0.35) * sinR;
+        const w = colSin[c] * sinR;
         v = (w + 1) * 0.25;
-        const dx = (c - amx) * 0.05;
-        const dist2 = dx * dx + dyy2;
+        const dist2 = colDx2[c] + dyy2;
         if(dist2 < 3.5) v += 0.35 * (1 - dist2 / 3.5);
-        v *= 0.36 + 0.64 * Math.min(1, Math.max(0, (c / cols - 0.25) / 0.45));
+        v *= colFade[c];
       }
 
       if(glitch > .02 && Math.random() < glitch*.10) v = Math.random();
